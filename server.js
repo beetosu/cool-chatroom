@@ -1,7 +1,17 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var express = require('express');
+const socketIO = require('socket.io');
 var log4js = require('log4js');
+const path = require('path');
+
+
+const PORT = process.env.PORT || 3000;
+const INDEX = path.join(__dirname, 'index.html');
+
+const server = express()
+  .use((req, res) => res.sendFile(INDEX) )
+  .listen(PORT, () => console.log(`Listening on ${ PORT }`));
+
+const io = socketIO(server);
 
 var badWords = ['horny', 'smoochin', 'cybersex', 'jesse hartloff', 'hartloff', 'n word'];
 
@@ -12,11 +22,7 @@ log4js.configure({
 var logger = log4js.getLogger('chatlog');
 logger.info("hello?")
 
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
-});
-
-io.on('connection', function(socket){
+io.on('connection', (socket) => {
   socket.on('disconnect', function(){
     console.log(socket.nickname + ' disconnected');
     io.emit('chat message', socket.nickname + " has left the chat")
@@ -24,7 +30,7 @@ io.on('connection', function(socket){
   });
 });
 
-io.on('connection', function(socket){
+io.on('connection', (socket) => {
   socket.on('chat message', function(msg){
     msg = censorText(msg, badWords, socket.nickname)
     if (msg in badWords) { logger.fatal('[BAD WORD ' + msg + ' FROM ' + socket.nickname + ' MADE IT THROUGH CENSORS. FATAL ERROR]') }
@@ -33,7 +39,7 @@ io.on('connection', function(socket){
   });
 });
 
-io.on('connection', function(socket) {
+io.on('connection', (socket) => {
   socket.on('send-nickname', function(nick) {
       socket.nickname = nick;
       console.log(socket.nickname + ' connected');
@@ -51,8 +57,3 @@ function censorText(string, filters, user) {
   });
 
 }
-
-http.listen(3000, function(){
-  console.log('listening on *:3000');
-  logger.debug("SERVER UP ON PORT 3000")
-});
