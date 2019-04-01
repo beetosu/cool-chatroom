@@ -1,0 +1,22 @@
+DECIMAL
+---------------------
+Structure:
+def addInput(number: Double): Unit
+
+notDecimal:
+var ndPlace: Double = 1
+override addInput(number: Double): Unit = {
+   currentNumber = (currentNumber * ndPlace) + input
+   ndPlace = ndPlace * 10
+}
+
+decimal:
+var decimalPlace: Double = .1
+override addInput(number: Double): Unit = {
+    currentNumber =
+}
+
+
+OPERATORS
+---------------------
+Structure:
